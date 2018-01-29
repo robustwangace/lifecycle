@@ -346,6 +346,12 @@ function runHookLifecycle (pkg, env, wd, opts, cb) {
 }
 
 function makeEnv (data, opts, prefix, env) {
+  // byRobust
+  var envIgnored = Object.create({})
+  if (data.hasOwnProperty('__envIgnored')) {
+    envIgnored = data['__envIgnored']
+  }
+  
   prefix = prefix || 'npm_package_'
   if (!env) {
     env = {}
@@ -369,6 +375,10 @@ function makeEnv (data, opts, prefix, env) {
   if (opts.nodeOptions) env.NODE_OPTIONS = opts.nodeOptions
 
   for (i in data) {
+    // byRobust Begin
+    if (envIgnored.hasOwnProperty(i) && envIgnored[i] === true) {
+      continue
+    }
     if (i.charAt(0) !== '_') {
       var envKey = (prefix + i).replace(/[^a-zA-Z0-9_]/g, '_')
       if (i === 'readme') {
